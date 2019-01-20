@@ -11,16 +11,33 @@ __powerline() {
     readonly COLOR_SUCCESS='\[\033[0;32m\]' # green
     readonly COLOR_FAILURE='\[\033[0;31m\]' # red
 
-    readonly SYMBOL_GIT_BRANCH='⑂'
-    readonly SYMBOL_GIT_MODIFIED='*'
-    readonly SYMBOL_GIT_PUSH='↑'
-    readonly SYMBOL_GIT_PULL='↓'
+    #readonly SYMBOL_GIT_BRANCH='⑂'
+    readonly SYMBOL_GIT_BRANCH=''
+    #readonly SYMBOL_GIT_MODIFIED='*'
+    readonly SYMBOL_GIT_MODIFIED='●'
+    #readonly SYMBOL_GIT_PUSH='↑'
+    readonly SYMBOL_GIT_PUSH='⬆'
+    #readonly SYMBOL_GIT_PULL='↓'
+    readonly SYMBOL_GIT_PULL='⬇'
+
+    readonly LINE1_PREFIX='╒═⟦'
+    readonly LINE1_SECT='⟧══⦗'
+    readonly LINE1_SECT2='⦘══❬'
+    readonly LINE1_SUFFIX=' ❭'
+    readonly LINE2_PREFIX='╘═'
+    readonly LINE2_SUFFIX=''
 
     if [[ -z "$PS_SYMBOL" ]]; then
       case "$(uname)" in
-          Darwin)   PS_SYMBOL='';;
-          Linux)    PS_SYMBOL='$';;
-          *)        PS_SYMBOL='%';;
+          Darwin)
+            PS_SYMBOL=''
+	    ;;
+          Linux|FreeBSD)
+            PS_SYMBOL='$'
+	    ;;
+          *)
+            PS_SYMBOL='%'
+	    ;;
       esac
     fi
 
@@ -81,8 +98,8 @@ __powerline() {
             # promptvars is disabled. Avoid creating unnecessary env var.
             local git="$COLOR_GIT$(__git_info)$RESET"
         fi
-
-        PS1="$cwd$git$symbol"
+	local dt=$(date "+%Y-%m-%d %I:%S")
+        PS1="$LINE1_PREFIX\u@\h$LINE1_SECT$dt$LINE1_SECT2$git$LINE1_SUFFIX\n$LINE2_PREFIX$cwd$LINE2_SUFFIX$symbol"
     }
 
     PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
