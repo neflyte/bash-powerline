@@ -6,7 +6,7 @@
 __powerline() {
     # Colorscheme
     readonly RESET='\[\033[m\]'
-    readonly COLOR_CWD='\[\033[0;34m\]' # blue
+    readonly COLOR_CWD='\[\033[0;94m\]' # blue
     readonly COLOR_GIT='\[\033[0;36m\]' # cyan
     readonly COLOR_SUCCESS='\[\033[0;32m\]' # green
     readonly COLOR_FAILURE='\[\033[0;31m\]' # red
@@ -20,12 +20,12 @@ __powerline() {
     #readonly SYMBOL_GIT_PULL='↓'
     readonly SYMBOL_GIT_PULL='⬇'
 
-    readonly LINE1_PREFIX='╒═⟦'
-    readonly LINE1_SECT='⟧══⦗'
-    readonly LINE1_SECT2='⦘══❬'
+    readonly LINE1_PREFIX='┌─⟦'
+    readonly LINE1_SECT='⟧──⦗'
+    readonly LINE1_SECT2='⦘──❬'
     readonly LINE1_SUFFIX=' ❭'
-    readonly LINE2_PREFIX='╘═'
-    readonly LINE2_SUFFIX=''
+    readonly LINE2_PREFIX='└─'
+    readonly LINE_SECT='──'
 
     if [[ -z "$PS_SYMBOL" ]]; then
       case "$(uname)" in
@@ -86,6 +86,18 @@ __powerline() {
         fi
 
         local cwd="$COLOR_CWD\w$RESET"
+        local dt=$(date "+%Y-%m-%d %I:%M")
+        local userhost='\u@\h'
+        local kubectx=" "
+
+        type -p kubectl
+        if [ $? -eq 0 ]; then
+            kubectx=$(kubectl config current-context)
+            if [ $? -ne 0 ]; then
+                kubectx="?"
+            fi
+        fi
+
         # Bash by default expands the content of PS1 unless promptvars is disabled.
         # We must use another layer of reference to prevent expanding any user
         # provided strings, which would cause security issues.
@@ -98,8 +110,8 @@ __powerline() {
             # promptvars is disabled. Avoid creating unnecessary env var.
             local git="$COLOR_GIT$(__git_info)$RESET"
         fi
-	local dt=$(date "+%Y-%m-%d %I:%S")
-        PS1="$LINE1_PREFIX\u@\h$LINE1_SECT$dt$LINE1_SECT2$git$LINE1_SUFFIX\n$LINE2_PREFIX$cwd$LINE2_SUFFIX$symbol"
+	    
+        PS1="$RESET$LINE1_PREFIX${dt}$LINE1_SECT${kubectx}$LINE1_SECT2$git$LINE1_SUFFIX\n$LINE2_PREFIX[${userhost}]$LINE_SECT<$cwd>$symbol"
     }
 
     PROMPT_COMMAND="ps1${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
